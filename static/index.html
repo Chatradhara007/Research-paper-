@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Research Paper Assistant</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <div class="glass-background"></div>
+    
+    <div class="container">
+        <header>
+            <h1>Research Paper <span>Assistant</span></h1>
+            <p>Upload a PDF to instantly extract methodologies, get a flowchart, and chat with your document.</p>
+        </header>
+
+        <main>
+            <div class="left-panel">
+                <div class="upload-section glass-panel">
+                    <h2>Upload Document</h2>
+                    <div id="drop-zone" class="drop-zone">
+                        <p>Drag & Drop your PDF here</p>
+                        <p class="small">or</p>
+                        <input type="file" id="file-input" accept=".pdf" hidden>
+                        <button id="browse-btn" class="primary-btn">Browse Files</button>
+                    </div>
+                    <div id="upload-status" class="status-msg hidden">Uploading and analyzing...</div>
+                </div>
+
+                <div class="summary-section glass-panel hidden" id="summary-container">
+                    <h2>Detailed Breakdown</h2>
+                    <div id="summary-content" class="markdown-body"></div>
+                    <div id="flowchart-container" class="mermaid"></div>
+                </div>
+            </div>
+
+            <div class="right-panel">
+                <div class="chat-section glass-panel">
+                    <h2>Assistant Chat</h2>
+                    <div class="chat-window" id="chat-window">
+                        <div class="message bot-message">
+                            <p>Hello! I'm your AI Research Assistant. You can chat with me directly, or upload a paper on the left to ask specific questions about it.</p>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="chat-input" placeholder="Type your message here..." autocomplete="off">
+                        <button id="send-btn" class="primary-btn">Send</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
