@@ -78,66 +78,98 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    const diagramTabsContainer = document.getElementById("diagram-tabs");
+
     async function renderSummary(fullText) {
-        // Extract Mermaid block
-        const mermaidMatch = fullText.match(/```mermaid\s*([\s\S]*?)```/i);
-        let mermaidCode = "";
+        // Extract Multiple Mermaid blocks wrapped in <diagram> tags
+        const diagramRegex = /<diagram title="([^"]+)">\s*```mermaid\s*([\s\S]*?)```\s*<\/diagram>/gi;
+        let match;
+        let diagrams = [];
         let markdownOnly = fullText;
 
-        if (mermaidMatch) {
-            mermaidCode = mermaidMatch[1].trim();
-            markdownOnly = fullText.replace(mermaidMatch[0], "");
+        while ((match = diagramRegex.exec(fullText)) !== null) {
+            diagrams.push({
+                title: match[1],
+                code: match[2].trim()
+            });
+            markdownOnly = markdownOnly.replace(match[0], "");
         }
+
+        // Fallback if no tags were used by LLM
+        if (diagrams.length === 0) {
+            const fallbackMatch = fullText.match(/```mermaid\s*([\s\S]*?)```/i);
+            if (fallbackMatch) {
+                diagrams.push({ title: "Methodology Flowchart", code: fallbackMatch[1].trim() });
+                markdownOnly = fullText.replace(fallbackMatch[0], "");
+            }
+        }
+
+        // Clean up markdown (remove leftover headers)
+        markdownOnly = markdownOnly.replace(/### Flowcharts?/gi, "").trim();
 
         // Show canvas
         canvasEmpty.classList.add("hidden");
         canvasContent.classList.remove("hidden");
 
-        // Render Markdown using marked.js
+        // Render Markdown
         summaryText.innerHTML = marked.parse(markdownOnly);
 
-        // Render Flowchart
-        if (mermaidCode) {
-            try {
-                // Destroy old panZoom if exists
-                if (panZoomInstance) {
-                    panZoomInstance.destroy();
-                    panZoomInstance = null;
-                }
-                
-                // Reset container
-                flowchartContainer.removeAttribute('data-processed');
-                flowchartContainer.innerHTML = mermaidCode;
-                
-                // Render with mermaid
-                await mermaid.run({
-                    nodes: [flowchartContainer]
-                });
+        // Render Tabs and Diagrams
+        diagramTabsContainer.innerHTML = "";
+        
+        if (diagrams.length > 0) {
+            diagrams.forEach((diag, index) => {
+                const btn = document.createElement("button");
+                btn.className = `diagram-tab ${index === 0 ? 'active' : ''}`;
+                btn.textContent = diag.title;
+                btn.onclick = () => {
+                    document.querySelectorAll('.diagram-tab').forEach(t => t.classList.remove('active'));
+                    btn.classList.add('active');
+                    renderFlowchart(diag.code);
+                };
+                diagramTabsContainer.appendChild(btn);
+            });
+            
+            // Render first diagram by default
+            renderFlowchart(diagrams[0].code);
+        } else {
+            flowchartContainer.innerHTML = "<p style='color: var(--text-secondary); text-align: center;'><em>No flowcharts could be generated.</em></p>";
+        }
+    }
 
-                // Wait a tick for SVG to be injected
-                setTimeout(() => {
-                    const svgElement = flowchartContainer.querySelector("svg");
-                    if (svgElement) {
-                        svgElement.style.width = "100%";
-                        svgElement.style.height = "100%";
-                        svgElement.style.maxWidth = "none";
-                        
-                        // Initialize pan-zoom
-                        panZoomInstance = svgPanZoom(svgElement, {
-                            zoomEnabled: true,
-                            controlIconsEnabled: false,
-                            fit: true,
-                            center: true,
-                            minZoom: 0.5,
-                            maxZoom: 10
-                        });
-                    }
-                }, 100);
-
-            } catch (err) {
-                console.error("Mermaid syntax error:", err);
-                flowchartContainer.innerHTML = `<p style='color: var(--text-secondary); text-align: center;'><em>Flowchart rendering failed. The model produced invalid syntax.</em></p><pre style='color: var(--text-secondary); padding: 1rem; overflow: auto; text-align: left;'>${mermaidCode}</pre>`;
+    async function renderFlowchart(mermaidCode) {
+        try {
+            if (panZoomInstance) {
+                panZoomInstance.destroy();
+                panZoomInstance = null;
             }
+            
+            flowchartContainer.removeAttribute('data-processed');
+            flowchartContainer.innerHTML = mermaidCode;
+            
+            await mermaid.run({ nodes: [flowchartContainer] });
+
+            setTimeout(() => {
+                const svgElement = flowchartContainer.querySelector("svg");
+                if (svgElement) {
+                    svgElement.style.width = "100%";
+                    svgElement.style.height = "100%";
+                    svgElement.style.maxWidth = "none";
+                    
+                    panZoomInstance = svgPanZoom(svgElement, {
+                        zoomEnabled: true,
+                        controlIconsEnabled: false,
+                        fit: true,
+                        center: true,
+                        minZoom: 0.5,
+                        maxZoom: 10
+                    });
+                }
+            }, 100);
+
+        } catch (err) {
+            console.error("Mermaid syntax error:", err);
+            flowchartContainer.innerHTML = `<p style='color: var(--text-secondary); text-align: center;'><em>Flowchart rendering failed due to syntax error.</em></p><pre style='color: var(--text-secondary); padding: 1rem; overflow: auto; text-align: left;'>${mermaidCode}</pre>`;
         }
     }
 

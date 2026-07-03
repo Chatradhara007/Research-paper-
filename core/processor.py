@@ -28,44 +28,49 @@ def generate_summary_and_flowchart(chunks):
     text_content = "\n\n".join([chunk.page_content for chunk in chunks[:max_chunks]])
     
     prompt = f"""
-    You are an expert AI Research Scientist focused on CLARITY. I will provide you with excerpts from a research paper.
+    You are an expert AI Research Scientist. Analyze the following excerpts from a research paper.
     
-    Your task is to analyze the text and output a response in two parts:
+    Output a highly detailed response in two parts:
     
-    1. A "Core Breakdown". DO NOT output walls of text. Use short, punchy bullet points and bold text to make it extremely easy to read at a glance. Break it strictly into these sections:
-       - 🎯 Core Objective (What problem are they solving?)
-       - 🔬 Methodology (How did they do it?)
-       - 📊 Key Findings (What were the results?)
-       - 💡 Implications (Why does this matter?)
+    1. A "Core Breakdown" using RICH BULLET POINTS. Each bullet must be 2-3 detailed sentences. DO NOT just write one short sentence. Provide deep clarity and thorough explanations. Structure:
+       - 🎯 Core Objective (What problem are they solving and why is it complex?)
+       - 🔬 Methodology (Detailed step-by-step of how they did it)
+       - 📊 Key Findings (Specific results, metrics, and outcomes)
+       - 💡 Implications (Broader impact on the field)
        
-    2. A HIGHLY DETAILED and COLORFUL Mermaid.js flowchart (`graph TD` or `graph LR`) illustrating the methodology, architecture, or experimental pipeline. 
+    2. A GALLERY OF FLOWCHARTS. Generate at least 5 to 8 HIGHLY DETAILED and COLORFUL Mermaid.js flowcharts (`graph TD` or `graph LR`) covering different aspects of the paper. Choose from:
+       - Research Methodology
+       - System Architecture
+       - Data Preprocessing Pipeline
+       - Model Architecture
+       - Training / Inference Pipeline
+       - Evaluation Metrics Workflow
+       - Citation / Knowledge Graph
        
     MERMAID INSTRUCTIONS:
-    - Make the diagram comprehensive, showing logical flow from start to finish.
     - KEEP NODE LABELS CLEAN: DO NOT use quotes, parentheses, brackets, or any special characters inside node text.
-    - ADD COLORS: You MUST use `classDef` to color code different types of nodes (e.g., inputs, processes, models, outputs). Make it visually stunning.
-    - Example of valid colorful syntax:
-      ```mermaid
-      graph TD
-      classDef input fill:#10b981,color:#fff,stroke:#047857,stroke-width:2px;
-      classDef model fill:#8b5cf6,color:#fff,stroke:#6d28d9,stroke-width:2px;
-      classDef output fill:#f59e0b,color:#fff,stroke:#b45309,stroke-width:2px;
-      
-      A[Raw Dataset]:::input --> B[Neural Network]:::model
-      B --> C[Predictions]:::output
-      ```
+    - ADD COLORS: Use `classDef` to color code nodes to make it visually stunning.
+    
+    TAGGING INSTRUCTIONS:
+    You MUST wrap each flowchart inside `<diagram title="Your Title Here"> ... </diagram>` tags so the frontend can parse them into tabs.
+    Example:
+    <diagram title="Data Preprocessing Pipeline">
+    ```mermaid
+    graph TD
+    classDef step fill:#3b82f6,color:#fff;
+    A[Raw Data]:::step --> B[Cleaning]:::step
+    ```
+    </diagram>
     
     Paper Excerpts:
     {text_content}
     
     Output Format STRICTLY:
     ### Core Breakdown
-    [Your bulleted breakdown here]
+    [Your rich bullet points here]
     
-    ### Flowchart
-    ```mermaid
-    [Your detailed colorful mermaid code here]
-    ```
+    ### Flowcharts
+    [Your 5-8 tagged diagrams here]
     """
     
     response = llm.invoke(prompt)

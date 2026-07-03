@@ -12,7 +12,7 @@ load_dotenv(override=True)
 from core.loader import save_uploaded_file, parse_document
 from core.processor import generate_summary_and_flowchart
 from core.vector_db import build_index
-from core.chat import chat_with_memory
+from core.chat import chat_with_memory, set_new_document_context
 
 
 app = FastAPI(title="AI Research Paper Assistant")
@@ -36,6 +36,7 @@ async def upload_document(file: UploadFile = File(...)):
         file_path = await save_uploaded_file(file, "uploads")
         chunks = parse_document(file_path)
         build_index(chunks)
+        set_new_document_context(file.filename)
         summary_data = generate_summary_and_flowchart(chunks)
         return JSONResponse(content={"status": "success", "summary": summary_data})
     except Exception as e:

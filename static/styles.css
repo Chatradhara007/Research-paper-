@@ -262,6 +262,45 @@ body {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 1.5rem;
+    gap: 1rem;
+}
+
+.diagram-tabs {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+    flex: 1;
+}
+
+.diagram-tab {
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+}
+
+.diagram-tab.active {
+    background: var(--accent-color);
+    color: white;
+    border-color: var(--accent-color);
+}
+
+.diagram-tab:hover:not(.active) {
+    background: var(--border-color);
+    color: white;
+}
+
+.diagram-controls {
+    display: flex;
+    gap: 0.5rem;
 }
 
 .diagram-controls button {
@@ -272,7 +311,6 @@ body {
     border-radius: 4px;
     cursor: pointer;
     font-size: 0.85rem;
-    margin-left: 0.5rem;
 }
 .diagram-controls button:hover { background-color: var(--border-color); color: white; }
 

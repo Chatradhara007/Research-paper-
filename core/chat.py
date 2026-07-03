@@ -7,6 +7,12 @@ from core.vector_db import load_index
 # Global chat history so conversation persists across requests
 chat_history = InMemoryChatMessageHistory()
 
+def set_new_document_context(filename: str):
+    """Injects a system prompt into the memory to focus on the new document."""
+    system_msg = f"[SYSTEM NOTIFICATION]: I have just uploaded a new document named '{filename}'. From this point forward, please prioritize this new document in your answers. Do not discuss previous documents unless I explicitly ask you to compare them or reference them."
+    chat_history.add_user_message(system_msg)
+    chat_history.add_ai_message(f"Understood. I will now focus my analysis primarily on '{filename}' while retaining the ability to search older documents if explicitly requested.")
+
 def chat_with_memory(user_query: str) -> str:
     """
     Handle user query. If index exists, use RAG.
