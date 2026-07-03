@@ -1,5 +1,5 @@
-from langchain.chains import ConversationalRetrievalChain
-from langchain.memory import ConversationBufferMemory
+from langchain_classic.chains import ConversationalRetrievalChain
+from langchain_classic.memory import ConversationBufferMemory
 from langchain_core.prompts import PromptTemplate
 from core.processor import get_llm
 from core.vector_db import load_index
@@ -32,7 +32,7 @@ def chat_with_memory(user_query: str) -> str:
         return response["answer"]
     else:
         # Normal conversation without document context
-        from langchain.chains import ConversationChain
+        from langchain_classic.chains import ConversationChain
         
         # We create a simple ConversationChain if no document is uploaded yet
         conversation = ConversationChain(
