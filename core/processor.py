@@ -43,7 +43,7 @@ def generate_summary_and_flowchart(chunks):
        - 📊 Key Findings (2-3 short sub-bullets highlighting results)
        - 💡 Implications (Why does it matter?)
        
-    2. A GALLERY OF FLOWCHARTS. Generate at least 5 to 8 HIGHLY DETAILED and COLORFUL Mermaid.js flowcharts (`graph TD` or `graph LR`) covering different aspects of the paper. Choose from:
+    2. A GALLERY OF FLOWCHARTS. Generate EXACTLY 3 to 4 HIGHLY DETAILED and COLORFUL Mermaid.js flowcharts (`graph TD` or `graph LR`) covering different aspects of the paper. Choose from:
        - Research Methodology
        - System Architecture
        - Data Preprocessing Pipeline
@@ -66,6 +66,8 @@ def generate_summary_and_flowchart(chunks):
     A[Raw Data]:::step --> B[Cleaning]:::step
     ```
     </diagram>
+    
+    CRITICAL INSTRUCTION: Do NOT repeat the instructions back to me. Do NOT generate infinite loops of text. Provide the output and stop immediately.
     
     Paper Excerpts:
     {text_content}
