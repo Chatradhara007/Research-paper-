@@ -1,15 +1,11 @@
 from langchain_classic.chains import ConversationalRetrievalChain
 from langchain_classic.memory import ConversationBufferMemory
-from langchain_core.prompts import PromptTemplate
+from langchain_core.chat_history import InMemoryChatMessageHistory
 from core.processor import get_llm
 from core.vector_db import load_index
 
-# Global memory instance so conversation persists across requests
-memory = ConversationBufferMemory(
-    memory_key="chat_history", 
-    return_messages=True,
-    output_key="answer"
-)
+# Global chat history so conversation persists across requests
+chat_history = InMemoryChatMessageHistory()
 
 def chat_with_memory(user_query: str) -> str:
     """
@@ -20,6 +16,13 @@ def chat_with_memory(user_query: str) -> str:
     vectorstore = load_index()
     
     if vectorstore:
+        # Memory configured specifically for ConversationalRetrievalChain
+        memory = ConversationBufferMemory(
+            chat_memory=chat_history,
+            memory_key="chat_history", 
+            return_messages=True,
+            output_key="answer"
+        )
         retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
         
         chain = ConversationalRetrievalChain.from_llm(
@@ -34,7 +37,13 @@ def chat_with_memory(user_query: str) -> str:
         # Normal conversation without document context
         from langchain_classic.chains import ConversationChain
         
-        # We create a simple ConversationChain if no document is uploaded yet
+        # Memory configured specifically for standard ConversationChain
+        memory = ConversationBufferMemory(
+            chat_memory=chat_history,
+            memory_key="history", 
+            return_messages=True
+        )
+        
         conversation = ConversationChain(
             llm=llm,
             memory=memory
