@@ -28,34 +28,43 @@ def generate_summary_and_flowchart(chunks):
     text_content = "\n\n".join([chunk.page_content for chunk in chunks[:max_chunks]])
     
     prompt = f"""
-    You are an expert AI Research Scientist. I will provide you with extensive excerpts from a research paper.
+    You are an expert AI Research Scientist focused on CLARITY. I will provide you with excerpts from a research paper.
     
-    Your task is to analyze the text and output a highly detailed response in two parts:
+    Your task is to analyze the text and output a response in two parts:
     
-    1. A detailed Summary (3-5 paragraphs) discussing the objectives, methodologies, architectures, and outcomes.
-    2. A HIGHLY DETAILED Mermaid.js flowchart (`graph TD` or `graph LR`) illustrating the entire methodology, 
-       model architecture, or experimental pipeline. 
+    1. A "Core Breakdown". DO NOT output walls of text. Use short, punchy bullet points and bold text to make it extremely easy to read at a glance. Break it strictly into these sections:
+       - 🎯 Core Objective (What problem are they solving?)
+       - 🔬 Methodology (How did they do it?)
+       - 📊 Key Findings (What were the results?)
+       - 💡 Implications (Why does this matter?)
+       
+    2. A HIGHLY DETAILED and COLORFUL Mermaid.js flowchart (`graph TD` or `graph LR`) illustrating the methodology, architecture, or experimental pipeline. 
        
     MERMAID INSTRUCTIONS:
-    - Make the diagram complex and comprehensive (use subgraphs if appropriate).
-    - Ensure logical flow from data ingestion/setup to final evaluation.
+    - Make the diagram comprehensive, showing logical flow from start to finish.
     - KEEP NODE LABELS CLEAN: DO NOT use quotes, parentheses, brackets, or any special characters inside node text.
-    - Example of valid complex syntax:
-      subgraph Data Prep
-        A[Raw Data] --> B[Cleaned Data]
-      end
-      B --> C[Model Training]
+    - ADD COLORS: You MUST use `classDef` to color code different types of nodes (e.g., inputs, processes, models, outputs). Make it visually stunning.
+    - Example of valid colorful syntax:
+      ```mermaid
+      graph TD
+      classDef input fill:#10b981,color:#fff,stroke:#047857,stroke-width:2px;
+      classDef model fill:#8b5cf6,color:#fff,stroke:#6d28d9,stroke-width:2px;
+      classDef output fill:#f59e0b,color:#fff,stroke:#b45309,stroke-width:2px;
+      
+      A[Raw Dataset]:::input --> B[Neural Network]:::model
+      B --> C[Predictions]:::output
+      ```
     
     Paper Excerpts:
     {text_content}
     
     Output Format STRICTLY:
-    ### Summary
-    [Your comprehensive summary here]
+    ### Core Breakdown
+    [Your bulleted breakdown here]
     
     ### Flowchart
     ```mermaid
-    [Your detailed mermaid code here]
+    [Your detailed colorful mermaid code here]
     ```
     """
     
