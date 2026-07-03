@@ -2,7 +2,7 @@ import os
 import shutil
 from fastapi import UploadFile
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 async def save_uploaded_file(file: UploadFile, upload_dir: str) -> str:
     """Save an uploaded file to the local directory."""
