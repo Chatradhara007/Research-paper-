@@ -135,7 +135,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const data = await response.json();
             
             loadingDiv.remove();
-            appendMessage(data.reply, "bot");
+            if (response.ok && data.reply) {
+                appendMessage(data.reply, "bot");
+            } else {
+                appendMessage("Error: " + (data.detail || "Unknown server error. Please check your API key."), "bot");
+            }
         } catch (err) {
             loadingDiv.remove();
             appendMessage("Sorry, I encountered an error connecting to the server.", "bot");
