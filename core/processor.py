@@ -32,11 +32,16 @@ def generate_summary_and_flowchart(chunks):
     
     Output a highly detailed response in two parts:
     
-    1. A "Core Breakdown" using RICH BULLET POINTS. Each bullet must be 2-3 detailed sentences. DO NOT just write one short sentence. Provide deep clarity and thorough explanations. Structure:
-       - 🎯 Core Objective (What problem are they solving and why is it complex?)
-       - 🔬 Methodology (Detailed step-by-step of how they did it)
-       - 📊 Key Findings (Specific results, metrics, and outcomes)
-       - 💡 Implications (Broader impact on the field)
+    1. A "Core Breakdown" using BITE-SIZED BULLET POINTS. 
+       - NEVER write paragraphs or massive blocks of text.
+       - Use 1-2 punchy sentences per point. 
+       - Use sub-bullets to break up complex information into scannable lists.
+       - Make it feel like a premium, highly readable executive summary.
+       Structure strictly into:
+       - 🎯 Core Objective (What problem are they solving?)
+       - 🔬 Methodology (2-3 short sub-bullets explaining the steps)
+       - 📊 Key Findings (2-3 short sub-bullets highlighting results)
+       - 💡 Implications (Why does it matter?)
        
     2. A GALLERY OF FLOWCHARTS. Generate at least 5 to 8 HIGHLY DETAILED and COLORFUL Mermaid.js flowcharts (`graph TD` or `graph LR`) covering different aspects of the paper. Choose from:
        - Research Methodology

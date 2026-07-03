@@ -256,6 +256,51 @@ body {
 
 .markdown-body p { margin-bottom: 1rem; }
 
+/* Turn main bullet points into beautiful cards */
+.markdown-body > ul {
+    list-style-type: none;
+    padding-left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.markdown-body > ul > li {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-color);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.markdown-body > ul > li:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.4);
+}
+
+.markdown-body > ul > li strong {
+    color: white;
+    font-size: 1.05rem;
+    display: inline-block;
+    margin-bottom: 0.5rem;
+}
+
+/* Sub-bullets (Methodology, Findings) inside the cards */
+.markdown-body > ul > li ul {
+    margin-top: 0.75rem;
+    padding-left: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.markdown-body > ul > li ul li {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
 /* Flowchart Area */
 .diagram-header {
     display: flex;
