@@ -6,13 +6,14 @@ from pydantic import BaseModel
 import uvicorn
 from dotenv import load_dotenv
 
+load_dotenv(override=True)
+
 # Import core modules
 from core.loader import save_uploaded_file, parse_document
 from core.processor import generate_summary_and_flowchart
 from core.vector_db import build_index
 from core.chat import chat_with_memory
 
-load_dotenv()
 
 app = FastAPI(title="AI Research Paper Assistant")
 

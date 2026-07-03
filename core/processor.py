@@ -29,7 +29,13 @@ def generate_summary_and_flowchart(chunks):
     prompt = f"""
     You are an expert AI Research Assistant. Analyze the following excerpts from a research paper and provide:
     1. A detailed summary (3-4 paragraphs) highlighting the objectives, methodology, and key findings.
-    2. A Mermaid.js flowchart (graph TD) that illustrates the flow of the research methodology or system architecture.
+    2. A simple Mermaid.js flowchart illustrating the methodology. 
+    
+    IMPORTANT MERMAID RULES:
+    - Start the diagram with `graph TD`
+    - Keep node labels short.
+    - DO NOT use quotes, parentheses, brackets, or special characters inside node text.
+    - Example: A[Data Collection] --> B[Analysis]
     
     Paper Excerpts:
     {text_content}

@@ -74,9 +74,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function renderSummary(summaryText) {
-        // Simple extraction of markdown and mermaid
         // We look for ```mermaid ... ```
-        const mermaidMatch = summaryText.match(/```mermaid([\s\S]*?)```/);
+        const mermaidMatch = summaryText.match(/```mermaid\s*([\s\S]*?)```/i);
         let mermaidCode = "";
         let textOnly = summaryText;
 
@@ -86,8 +85,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // Render Text
-        // Convert basic markdown to HTML (just handling paragraphs for simplicity, 
-        // a real app might use marked.js)
         const paragraphs = textOnly.split('\n\n').filter(p => p.trim());
         summaryContent.innerHTML = paragraphs.map(p => {
             if(p.startsWith('###')) return `<h3>${p.replace('###', '').trim()}</h3>`;
@@ -100,9 +97,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Render Flowchart
         if (mermaidCode) {
-            flowchartContainer.innerHTML = mermaidCode;
-            flowchartContainer.removeAttribute('data-processed');
-            mermaid.init(undefined, flowchartContainer);
+            try {
+                flowchartContainer.innerHTML = mermaidCode;
+                flowchartContainer.removeAttribute('data-processed');
+                mermaid.init(undefined, flowchartContainer);
+            } catch (err) {
+                console.error("Mermaid syntax error:", err);
+                flowchartContainer.innerHTML = "<p style='color: var(--text-muted)'><em>Flowchart could not be rendered due to complex output.</em></p>";
+            }
         }
     }
 
