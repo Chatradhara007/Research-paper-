@@ -2,10 +2,9 @@ from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv(override=True)
 
 def get_llm():
-    # Use an available Groq model or fallback to a default if user hasn't set it up
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key or api_key == "your_api_key_here":
         raise ValueError("Please provide a valid GROQ_API_KEY in your .env file")
@@ -18,35 +17,45 @@ def get_llm():
 
 def generate_summary_and_flowchart(chunks):
     """
-    Given the document chunks, generate a summary and a Mermaid.js flowchart 
-    representing the paper's methodology or structure.
+    Generate a highly detailed summary and an intricate Mermaid.js flowchart 
+    representing the paper's core methodology, architecture, and experiments.
     """
     llm = get_llm()
     
-    # We only take the first few chunks to generate a high-level summary to save tokens.
-    text_content = "\n\n".join([chunk.page_content for chunk in chunks[:5]])
+    # Take a much larger slice of the document (e.g., first 20 chunks) 
+    # Llama 3 70B can handle 8k context, 20 chunks * 1000 chars is ~20k chars (~5k tokens)
+    max_chunks = min(len(chunks), 20)
+    text_content = "\n\n".join([chunk.page_content for chunk in chunks[:max_chunks]])
     
     prompt = f"""
-    You are an expert AI Research Assistant. Analyze the following excerpts from a research paper and provide:
-    1. A detailed summary (3-4 paragraphs) highlighting the objectives, methodology, and key findings.
-    2. A simple Mermaid.js flowchart illustrating the methodology. 
+    You are an expert AI Research Scientist. I will provide you with extensive excerpts from a research paper.
     
-    IMPORTANT MERMAID RULES:
-    - Start the diagram with `graph TD`
-    - Keep node labels short.
-    - DO NOT use quotes, parentheses, brackets, or special characters inside node text.
-    - Example: A[Data Collection] --> B[Analysis]
+    Your task is to analyze the text and output a highly detailed response in two parts:
+    
+    1. A detailed Summary (3-5 paragraphs) discussing the objectives, methodologies, architectures, and outcomes.
+    2. A HIGHLY DETAILED Mermaid.js flowchart (`graph TD` or `graph LR`) illustrating the entire methodology, 
+       model architecture, or experimental pipeline. 
+       
+    MERMAID INSTRUCTIONS:
+    - Make the diagram complex and comprehensive (use subgraphs if appropriate).
+    - Ensure logical flow from data ingestion/setup to final evaluation.
+    - KEEP NODE LABELS CLEAN: DO NOT use quotes, parentheses, brackets, or any special characters inside node text.
+    - Example of valid complex syntax:
+      subgraph Data Prep
+        A[Raw Data] --> B[Cleaned Data]
+      end
+      B --> C[Model Training]
     
     Paper Excerpts:
     {text_content}
     
     Output Format STRICTLY:
     ### Summary
-    [Your summary here]
+    [Your comprehensive summary here]
     
     ### Flowchart
     ```mermaid
-    [Your mermaid code here]
+    [Your detailed mermaid code here]
     ```
     """
     

@@ -1,49 +1,52 @@
 document.addEventListener("DOMContentLoaded", () => {
-    // Mermaid initialization
-    mermaid.initialize({ startOnLoad: false, theme: 'dark' });
+    // Mermaid configuration for dark theme and high quality
+    mermaid.initialize({ 
+        startOnLoad: false, 
+        theme: 'dark',
+        securityLevel: 'loose',
+        flowchart: { htmlLabels: true, curve: 'basis' }
+    });
+
+    let panZoomInstance = null;
 
     // UI Elements
     const dropZone = document.getElementById("drop-zone");
     const fileInput = document.getElementById("file-input");
-    const browseBtn = document.getElementById("browse-btn");
     const uploadStatus = document.getElementById("upload-status");
-    const summaryContainer = document.getElementById("summary-container");
-    const summaryContent = document.getElementById("summary-content");
+    
+    const canvasEmpty = document.getElementById("canvas-empty");
+    const canvasContent = document.getElementById("canvas-content");
+    const summaryText = document.getElementById("summary-text");
     const flowchartContainer = document.getElementById("flowchart-container");
+    const flowchartWrapper = document.getElementById("flowchart-wrapper");
     
     const chatWindow = document.getElementById("chat-window");
     const chatInput = document.getElementById("chat-input");
     const sendBtn = document.getElementById("send-btn");
 
+    // Diagram Controls
+    document.getElementById("zoom-in").addEventListener("click", () => panZoomInstance && panZoomInstance.zoomIn());
+    document.getElementById("zoom-out").addEventListener("click", () => panZoomInstance && panZoomInstance.zoomOut());
+    document.getElementById("zoom-reset").addEventListener("click", () => panZoomInstance && panZoomInstance.resetZoom());
+
     // File Upload Logic
-    browseBtn.addEventListener("click", () => fileInput.click());
+    dropZone.addEventListener("click", () => fileInput.click());
 
     fileInput.addEventListener("change", (e) => {
-        if (e.target.files.length) {
-            handleFileUpload(e.target.files[0]);
-        }
+        if (e.target.files.length) handleFileUpload(e.target.files[0]);
     });
 
-    dropZone.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        dropZone.classList.add("dragover");
-    });
-
-    dropZone.addEventListener("dragleave", () => {
-        dropZone.classList.remove("dragover");
-    });
-
+    dropZone.addEventListener("dragover", (e) => { e.preventDefault(); dropZone.classList.add("dragover"); });
+    dropZone.addEventListener("dragleave", () => { dropZone.classList.remove("dragover"); });
     dropZone.addEventListener("drop", (e) => {
         e.preventDefault();
         dropZone.classList.remove("dragover");
-        if (e.dataTransfer.files.length) {
-            handleFileUpload(e.dataTransfer.files[0]);
-        }
+        if (e.dataTransfer.files.length) handleFileUpload(e.dataTransfer.files[0]);
     });
 
     async function handleFileUpload(file) {
         if (file.type !== "application/pdf") {
-            alert("Please upload a PDF file.");
+            appendMessage("Please upload a valid PDF file.", "bot");
             return;
         }
 
@@ -51,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
         formData.append("file", file);
 
         uploadStatus.classList.remove("hidden");
-        summaryContainer.classList.add("hidden");
+        appendMessage(`Analyzing ${file.name}... This may take a minute for detailed analysis.`, "bot");
 
         try {
             const response = await fetch("/upload", {
@@ -60,50 +63,80 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await response.json();
             
-            if (data.status === "success") {
+            if (response.ok && data.status === "success") {
+                appendMessage("Analysis complete! Check the main canvas.", "bot");
                 renderSummary(data.summary);
             } else {
-                alert("Error processing document");
+                appendMessage("Error processing document: " + (data.detail || "Unknown error"), "bot");
             }
         } catch (err) {
             console.error(err);
-            alert("Failed to upload document");
+            appendMessage("Failed to upload document. Is the server running?", "bot");
         } finally {
             uploadStatus.classList.add("hidden");
+            fileInput.value = "";
         }
     }
 
-    function renderSummary(summaryText) {
-        // We look for ```mermaid ... ```
-        const mermaidMatch = summaryText.match(/```mermaid\s*([\s\S]*?)```/i);
+    async function renderSummary(fullText) {
+        // Extract Mermaid block
+        const mermaidMatch = fullText.match(/```mermaid\s*([\s\S]*?)```/i);
         let mermaidCode = "";
-        let textOnly = summaryText;
+        let markdownOnly = fullText;
 
         if (mermaidMatch) {
             mermaidCode = mermaidMatch[1].trim();
-            textOnly = summaryText.replace(mermaidMatch[0], "");
+            markdownOnly = fullText.replace(mermaidMatch[0], "");
         }
 
-        // Render Text
-        const paragraphs = textOnly.split('\n\n').filter(p => p.trim());
-        summaryContent.innerHTML = paragraphs.map(p => {
-            if(p.startsWith('###')) return `<h3>${p.replace('###', '').trim()}</h3>`;
-            if(p.startsWith('##')) return `<h2>${p.replace('##', '').trim()}</h2>`;
-            if(p.startsWith('#')) return `<h1>${p.replace('#', '').trim()}</h1>`;
-            return `<p>${p}</p>`;
-        }).join('');
+        // Show canvas
+        canvasEmpty.classList.add("hidden");
+        canvasContent.classList.remove("hidden");
 
-        summaryContainer.classList.remove("hidden");
+        // Render Markdown using marked.js
+        summaryText.innerHTML = marked.parse(markdownOnly);
 
         // Render Flowchart
         if (mermaidCode) {
             try {
-                flowchartContainer.innerHTML = mermaidCode;
+                // Destroy old panZoom if exists
+                if (panZoomInstance) {
+                    panZoomInstance.destroy();
+                    panZoomInstance = null;
+                }
+                
+                // Reset container
                 flowchartContainer.removeAttribute('data-processed');
-                mermaid.init(undefined, flowchartContainer);
+                flowchartContainer.innerHTML = mermaidCode;
+                
+                // Render with mermaid
+                await mermaid.run({
+                    nodes: [flowchartContainer]
+                });
+
+                // Wait a tick for SVG to be injected
+                setTimeout(() => {
+                    const svgElement = flowchartContainer.querySelector("svg");
+                    if (svgElement) {
+                        svgElement.style.width = "100%";
+                        svgElement.style.height = "100%";
+                        svgElement.style.maxWidth = "none";
+                        
+                        // Initialize pan-zoom
+                        panZoomInstance = svgPanZoom(svgElement, {
+                            zoomEnabled: true,
+                            controlIconsEnabled: false,
+                            fit: true,
+                            center: true,
+                            minZoom: 0.5,
+                            maxZoom: 10
+                        });
+                    }
+                }, 100);
+
             } catch (err) {
                 console.error("Mermaid syntax error:", err);
-                flowchartContainer.innerHTML = "<p style='color: var(--text-muted)'><em>Flowchart could not be rendered due to complex output.</em></p>";
+                flowchartContainer.innerHTML = `<p style='color: var(--text-secondary); text-align: center;'><em>Flowchart rendering failed. The model produced invalid syntax.</em></p><pre style='color: var(--text-secondary); padding: 1rem; overflow: auto; text-align: left;'>${mermaidCode}</pre>`;
             }
         }
     }
@@ -122,11 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
         chatInput.value = "";
         
         // Show loading indicator
-        const loadingDiv = document.createElement("div");
-        loadingDiv.className = "message bot-message";
-        loadingDiv.textContent = "...";
-        chatWindow.appendChild(loadingDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
+        const loadingId = appendLoading();
 
         try {
             const response = await fetch("/chat", {
@@ -136,23 +165,44 @@ document.addEventListener("DOMContentLoaded", () => {
             });
             const data = await response.json();
             
-            loadingDiv.remove();
+            removeLoading(loadingId);
+            
             if (response.ok && data.reply) {
                 appendMessage(data.reply, "bot");
             } else {
-                appendMessage("Error: " + (data.detail || "Unknown server error. Please check your API key."), "bot");
+                appendMessage("Error: " + (data.detail || "Server error occurred. Check API Key."), "bot");
             }
         } catch (err) {
-            loadingDiv.remove();
-            appendMessage("Sorry, I encountered an error connecting to the server.", "bot");
+            removeLoading(loadingId);
+            appendMessage("Sorry, I encountered a connection error.", "bot");
         }
     }
 
     function appendMessage(text, sender) {
         const div = document.createElement("div");
         div.className = `message ${sender}-message`;
-        div.innerHTML = `<p>${text}</p>`; // Simple rendering, could use marked.js here too
+        
+        // Parse markdown if bot message, else plain text
+        const contentHtml = sender === "bot" ? marked.parse(text) : `<p>${text}</p>`;
+        
+        div.innerHTML = `<div class="msg-content">${contentHtml}</div>`;
         chatWindow.appendChild(div);
         chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    function appendLoading() {
+        const id = 'loading-' + Date.now();
+        const div = document.createElement("div");
+        div.className = "message bot-message";
+        div.id = id;
+        div.innerHTML = `<div class="msg-content">...</div>`;
+        chatWindow.appendChild(div);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+        return id;
+    }
+
+    function removeLoading(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
     }
 });

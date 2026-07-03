@@ -1,139 +1,100 @@
 :root {
-    --bg-gradient-start: #0f172a;
-    --bg-gradient-end: #1e1b4b;
-    --glass-bg: rgba(15, 23, 42, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
-    --primary-color: #6366f1;
-    --primary-hover: #4f46e5;
-    --text-main: #f8fafc;
-    --text-muted: #94a3b8;
-    --chat-bot-bg: rgba(99, 102, 241, 0.15);
-    --chat-user-bg: rgba(255, 255, 255, 0.1);
+    --bg-dark: #0f1115;
+    --bg-panel: #181b21;
+    --bg-panel-hover: #1e2229;
+    --border-color: #2a2e37;
+    --accent-color: #6366f1;
+    --accent-hover: #4f46e5;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --chat-bot: #21252d;
+    --chat-user: #2d323d;
 }
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
 }
 
 body {
-    background: linear-gradient(135deg, var(--bg-gradient-start), var(--bg-gradient-end));
-    color: var(--text-main);
-    min-height: 100vh;
-    overflow-x: hidden;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    height: 100vh;
+    overflow: hidden;
 }
 
-.glass-background {
-    position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
-    background: radial-gradient(circle at center, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
-    z-index: -1;
+.app-layout {
+    display: flex;
+    height: 100vh;
+    width: 100vw;
 }
 
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
+/* Sidebar */
+.sidebar {
+    width: 380px;
+    background-color: var(--bg-panel);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
 }
 
-header {
-    text-align: center;
-    margin-bottom: 3rem;
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-header h1 {
-    font-size: 3rem;
-    font-weight: 800;
-    letter-spacing: -1px;
-}
-
-header h1 span {
-    color: var(--primary-color);
-}
-
-header p {
-    color: var(--text-muted);
-    margin-top: 0.5rem;
-    font-size: 1.1rem;
-}
-
-main {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-}
-
-.glass-panel {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: 16px;
-    padding: 2rem;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-h2 {
-    font-size: 1.5rem;
-    margin-bottom: 1.5rem;
+.sidebar-header h2 {
+    font-size: 1.25rem;
     font-weight: 600;
-    border-bottom: 1px solid var(--glass-border);
-    padding-bottom: 0.5rem;
+    color: white;
+}
+
+.sidebar-header p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
 }
 
 /* Upload Section */
-.drop-zone {
-    border: 2px dashed var(--glass-border);
-    border-radius: 12px;
-    padding: 3rem 2rem;
-    text-align: center;
-    transition: all 0.3s ease;
+.upload-section {
+    padding: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
 }
 
-.drop-zone.dragover {
-    background: rgba(99, 102, 241, 0.1);
-    border-color: var(--primary-color);
+.drop-zone {
+    border: 2px dashed var(--border-color);
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent-color);
+    background-color: rgba(99, 102, 241, 0.05);
+}
+
+.drop-zone svg {
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
 }
 
 .drop-zone p {
-    margin-bottom: 1rem;
-    font-size: 1.2rem;
-}
-
-.drop-zone p.small {
     font-size: 0.9rem;
-    color: var(--text-muted);
-    margin-bottom: 1rem;
-}
-
-.primary-btn {
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background 0.3s ease, transform 0.1s ease;
-}
-
-.primary-btn:hover {
-    background: var(--primary-hover);
-    transform: translateY(-2px);
-}
-
-.primary-btn:active {
-    transform: translateY(0);
+    font-weight: 500;
+    color: var(--text-secondary);
 }
 
 .status-msg {
     margin-top: 1rem;
+    font-size: 0.85rem;
+    color: var(--accent-color);
     text-align: center;
-    color: var(--primary-color);
-    font-weight: 600;
     animation: pulse 1.5s infinite;
 }
 
@@ -143,94 +104,195 @@ h2 {
     100% { opacity: 0.6; }
 }
 
-.hidden {
-    display: none !important;
-}
-
-/* Summary Section */
-.summary-section {
-    margin-top: 2rem;
-}
-
-.markdown-body {
-    line-height: 1.6;
-    color: var(--text-main);
-    margin-bottom: 2rem;
-}
-
-.markdown-body p {
-    margin-bottom: 1rem;
-}
+.hidden { display: none !important; }
 
 /* Chat Section */
 .chat-section {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    height: calc(100vh - 12rem);
+    overflow: hidden;
 }
 
 .chat-window {
     flex: 1;
     overflow-y: auto;
-    padding: 1rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    margin-bottom: 1rem;
-    scrollbar-width: thin;
-    scrollbar-color: var(--glass-border) transparent;
 }
 
-.chat-window::-webkit-scrollbar {
-    width: 6px;
-}
-.chat-window::-webkit-scrollbar-thumb {
-    background: var(--glass-border);
-    border-radius: 3px;
-}
+.chat-window::-webkit-scrollbar { width: 6px; }
+.chat-window::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
 
 .message {
-    max-width: 80%;
-    padding: 1rem;
-    border-radius: 12px;
-    line-height: 1.5;
-    animation: slideIn 0.3s ease forwards;
+    max-width: 90%;
+    display: flex;
+    animation: fadeIn 0.2s ease;
 }
 
-@keyframes slideIn {
-    from { opacity: 0; transform: translateY(10px); }
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-.bot-message {
-    background: var(--chat-bot-bg);
-    align-self: flex-start;
-    border-bottom-left-radius: 2px;
+.bot-message { align-self: flex-start; }
+.user-message { align-self: flex-end; }
+
+.msg-content {
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.5;
 }
 
-.user-message {
-    background: var(--chat-user-bg);
-    align-self: flex-end;
-    border-bottom-right-radius: 2px;
-}
+.bot-message .msg-content { background-color: var(--chat-bot); border: 1px solid var(--border-color); }
+.user-message .msg-content { background-color: var(--chat-user); color: white; }
 
 .chat-input-area {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid var(--border-color);
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
 }
 
 .chat-input-area input {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--glass-border);
-    border-radius: 8px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
     padding: 0.75rem 1rem;
-    color: white;
-    font-size: 1rem;
+    border-radius: 6px;
     outline: none;
-    transition: border-color 0.3s ease;
+    font-size: 0.9rem;
+    transition: border-color 0.2s ease;
 }
 
-.chat-input-area input:focus {
-    border-color: var(--primary-color);
+.chat-input-area input:focus { border-color: var(--accent-color); }
+
+#send-btn {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
 }
+
+#send-btn:hover { background-color: var(--accent-hover); }
+
+/* Main Canvas */
+.main-canvas {
+    flex: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-canvas::-webkit-scrollbar { width: 8px; }
+.main-canvas::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+
+.canvas-empty {
+    margin: auto;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+.canvas-empty svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.canvas-empty h3 {
+    font-size: 1.25rem;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.canvas-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.summary-card, .diagram-card {
+    background-color: var(--bg-panel);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.summary-card h3, .diagram-card h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.markdown-body {
+    font-size: 0.95rem;
+    line-height: 1.7;
+    color: var(--text-primary);
+}
+
+.markdown-body h1, .markdown-body h2, .markdown-body h3 {
+    color: white;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+}
+
+.markdown-body p { margin-bottom: 1rem; }
+
+/* Flowchart Area */
+.diagram-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.diagram-controls button {
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-left: 0.5rem;
+}
+.diagram-controls button:hover { background-color: var(--border-color); color: white; }
+
+#flowchart-wrapper {
+    width: 100%;
+    height: 600px;
+    background-color: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#flowchart-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* SVG Pan Zoom overrides */
+.svg-pan-zoom-control { fill: var(--text-secondary) !important; }
