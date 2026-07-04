@@ -81,29 +81,32 @@ document.addEventListener("DOMContentLoaded", () => {
     const diagramTabsContainer = document.getElementById("diagram-tabs");
 
     async function renderSummary(fullText) {
-        // Extract Multiple Mermaid blocks wrapped in <diagram> tags
-        // Made the regex much more robust to handle cases where the LLM forgets the markdown backticks
-        const diagramRegex = /<diagram title="([^"]+)">\s*(?:```(?:mermaid)?\s*)?([\s\S]*?)(?:```\s*)?<\/diagram>/gi;
-        let match;
         let diagrams = [];
         let markdownOnly = fullText;
 
-        while ((match = diagramRegex.exec(fullText)) !== null) {
-            diagrams.push({
-                title: match[1],
-                code: match[2].trim()
-            });
-            markdownOnly = markdownOnly.replace(match[0], "");
+        // 1. Try to match our strict <diagram title="..."> format first
+        const strictRegex = /<diagram[^>]*title=['"]([^'"]+)['"][^>]*>([\s\S]*?)<\/diagram>/gi;
+        let match;
+        while ((match = strictRegex.exec(fullText)) !== null) {
+            let title = match[1];
+            let content = match[2];
+            // Extract mermaid code from inside, stripping any rogue markdown fences
+            let codeMatch = content.match(/```(?:mermaid)?\s*([\s\S]*?)```/i);
+            let code = codeMatch ? codeMatch[1].trim() : content.replace(/```(?:mermaid)?/gi, "").replace(/```/g, "").trim();
+            
+            diagrams.push({ title, code });
+            markdownOnly = markdownOnly.replace(match[0], ""); 
         }
 
-        // Fallback if no tags were used by LLM
-        if (diagrams.length === 0) {
-            const fallbackMatch = fullText.match(/```mermaid\s*([\s\S]*?)```/i);
-            if (fallbackMatch) {
-                diagrams.push({ title: "Methodology Flowchart", code: fallbackMatch[1].trim() });
-                markdownOnly = fullText.replace(fallbackMatch[0], "");
-            }
+        // 2. Fallback: If LLM dumped ```mermaid blocks without <diagram> tags, catch them!
+        const looseRegex = /```mermaid\s*([\s\S]*?)```/gi;
+        while ((match = looseRegex.exec(markdownOnly)) !== null) {
+            diagrams.push({ title: "Flowchart " + (diagrams.length + 1), code: match[1].trim() });
+            markdownOnly = markdownOnly.replace(match[0], ""); 
         }
+
+        // 3. Ultimate cleanup: wipe out any leftover rogue <diagram> tags that might break Markdown
+        markdownOnly = markdownOnly.replace(/<\/?diagram[^>]*>/gi, "");
 
         // Clean up markdown (remove leftover headers)
         markdownOnly = markdownOnly.replace(/### Flowcharts?/gi, "").trim();

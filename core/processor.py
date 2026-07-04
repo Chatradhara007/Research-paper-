@@ -64,7 +64,14 @@ def generate_summary_and_flowchart(chunks):
     
     Output Format STRICTLY:
     ### Core Breakdown
-    [Your rich BITE-SIZED bullet points here]
+    * 🎯 **Core Objective:** [1-2 sentences maximum]
+    * 🔬 **Methodology:** 
+      - [Sub-point 1]
+      - [Sub-point 2]
+    * 📊 **Key Findings:**
+      - [Sub-point 1]
+      - [Sub-point 2]
+    * 💡 **Implications:** [1-2 sentences maximum]
     
     [Your 4 tagged diagrams here]
     """
