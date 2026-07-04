@@ -146,7 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             
             flowchartContainer.removeAttribute('data-processed');
-            flowchartContainer.innerHTML = mermaidCode;
+            // CRITICAL FIX: Use textContent instead of innerHTML so characters like < and > in Mermaid code don't break the DOM!
+            flowchartContainer.textContent = mermaidCode;
             
             await mermaid.run({ nodes: [flowchartContainer] });
 

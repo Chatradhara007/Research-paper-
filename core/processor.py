@@ -61,6 +61,12 @@ def generate_summary_and_flowchart(chunks):
     
     Paper Excerpts:
     {text_content}
+    
+    Output Format STRICTLY:
+    ### Core Breakdown
+    [Your rich BITE-SIZED bullet points here]
+    
+    [Your 4 tagged diagrams here]
     """
     
     resp1 = llm.invoke(prompt1).content
