@@ -1,17 +1,18 @@
-from langchain_groq import ChatGroq
+from langchain_google_genai import ChatGoogleGenerativeAI
 import os
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
 def get_llm():
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = os.getenv("GEMINI_API_KEY")
     if not api_key or api_key == "your_api_key_here":
-        raise ValueError("Please provide a valid GROQ_API_KEY in your .env file")
+        raise ValueError("Please provide a valid GEMINI_API_KEY in your .env file")
     
-    return ChatGroq(
-        api_key=api_key,
-        model_name="llama-3.3-70b-versatile",
+    # Using gemini-1.5-pro as it has a massive context window and is excellent at following complex instructions (like generating 5-8 flowcharts without looping)
+    return ChatGoogleGenerativeAI(
+        google_api_key=api_key,
+        model="gemini-1.5-pro",
         temperature=0.2
     )
 
@@ -22,8 +23,7 @@ def generate_summary_and_flowchart(chunks):
     """
     llm = get_llm()
     
-    # Take a much larger slice of the document (e.g., first 20 chunks) 
-    # Llama 3 70B can handle 8k context, 20 chunks * 1000 chars is ~20k chars (~5k tokens)
+    # Take a much larger slice of the document
     max_chunks = min(len(chunks), 20)
     text_content = "\n\n".join([chunk.page_content for chunk in chunks[:max_chunks]])
     
@@ -43,7 +43,7 @@ def generate_summary_and_flowchart(chunks):
        - 📊 Key Findings (2-3 short sub-bullets highlighting results)
        - 💡 Implications (Why does it matter?)
        
-    2. A GALLERY OF FLOWCHARTS. Generate EXACTLY 3 to 4 HIGHLY DETAILED and COLORFUL Mermaid.js flowcharts (`graph TD` or `graph LR`) covering different aspects of the paper. Choose from:
+    2. A GALLERY OF FLOWCHARTS. Generate at least 5 to 8 HIGHLY DETAILED and COLORFUL Mermaid.js flowcharts (`graph TD` or `graph LR`) covering different aspects of the paper. Choose from:
        - Research Methodology
        - System Architecture
        - Data Preprocessing Pipeline

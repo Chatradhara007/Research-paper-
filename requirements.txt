@@ -3,7 +3,7 @@ uvicorn
 python-multipart
 langchain
 langchain-community
-langchain-groq
+langchain-google-genai
 langchain-huggingface
 langchain-text-splitters
 faiss-cpu
