@@ -1,21 +1,17 @@
-from langchain_openai import ChatOpenAI
+from langchain_groq import ChatGroq
 import os
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
 def get_llm():
-    api_key = os.getenv("OPENAI_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY")
     if not api_key or api_key == "your_api_key_here":
-        raise ValueError("Please provide a valid OPENAI_API_KEY in your .env file")
+        raise ValueError("Please provide a valid GROQ_API_KEY in your .env file")
     
-    # Using Bynara Router base URL and Claude Sonnet 4.5
-    base_url = os.getenv("OPENAI_API_BASE", "https://router.bynara.id/v1")
-    
-    return ChatOpenAI(
+    return ChatGroq(
         api_key=api_key,
-        base_url=base_url,
-        model="claude-sonnet-4.5",
+        model_name="llama-3.3-70b-versatile",
         temperature=0.2
     )
 
@@ -26,62 +22,62 @@ def generate_summary_and_flowchart(chunks):
     """
     llm = get_llm()
     
-    # Take a much larger slice of the document
     max_chunks = min(len(chunks), 20)
     text_content = "\n\n".join([chunk.page_content for chunk in chunks[:max_chunks]])
     
-    prompt = f"""
-    You are an expert AI Research Scientist. Analyze the following excerpts from a research paper.
+    # --- DUAL CALL ARCHITECTURE ---
+    # Call 1: Core Breakdown + 4 Diagrams
+    prompt1 = f"""
+    You are an expert AI Research Scientist. Analyze the excerpts from the research paper.
     
     Output a highly detailed response in two parts:
     
     1. A "Core Breakdown" using BITE-SIZED BULLET POINTS. 
-       - NEVER write paragraphs or massive blocks of text.
-       - Use 1-2 punchy sentences per point. 
-       - Use sub-bullets to break up complex information into scannable lists.
-       - Make it feel like a premium, highly readable executive summary.
+       - NEVER write paragraphs. Use 1-2 punchy sentences per point. 
        Structure strictly into:
-       - 🎯 Core Objective (What problem are they solving?)
-       - 🔬 Methodology (2-3 short sub-bullets explaining the steps)
-       - 📊 Key Findings (2-3 short sub-bullets highlighting results)
-       - 💡 Implications (Why does it matter?)
+       - 🎯 Core Objective
+       - 🔬 Methodology 
+       - 📊 Key Findings
+       - 💡 Implications
        
-    2. A GALLERY OF FLOWCHARTS. Generate at least 5 to 8 HIGHLY DETAILED and COLORFUL Mermaid.js flowcharts (`graph TD` or `graph LR`) covering different aspects of the paper. Choose from:
-       - Research Methodology
-       - System Architecture
-       - Data Preprocessing Pipeline
-       - Model Architecture
-       - Training / Inference Pipeline
-       - Evaluation Metrics Workflow
-       - Citation / Knowledge Graph
+    2. Generate EXACTLY 4 HIGHLY DETAILED Mermaid.js flowcharts (`graph TD` or `graph LR`). Choose from: System Architecture, Data Preprocessing, Model Architecture, or Training Pipeline.
        
     MERMAID INSTRUCTIONS:
-    - KEEP NODE LABELS CLEAN: DO NOT use quotes, parentheses, brackets, or any special characters inside node text.
-    - ADD COLORS: Use `classDef` to color code nodes to make it visually stunning.
+    - KEEP NODE LABELS CLEAN: DO NOT use quotes or special characters inside node text.
+    - ADD COLORS: Use `classDef` to color code nodes.
     
     TAGGING INSTRUCTIONS:
-    You MUST wrap each flowchart inside `<diagram title="Your Title Here"> ... </diagram>` tags so the frontend can parse them into tabs.
-    Example:
-    <diagram title="Data Preprocessing Pipeline">
-    ```mermaid
-    graph TD
-    classDef step fill:#3b82f6,color:#fff;
-    A[Raw Data]:::step --> B[Cleaning]:::step
-    ```
-    </diagram>
+    You MUST wrap each flowchart inside `<diagram title="Your Title Here"> ... </diagram>` tags.
     
-    CRITICAL INSTRUCTION: Do NOT repeat the instructions back to me. Do NOT generate infinite loops of text. Provide the output and stop immediately.
+    CRITICAL INSTRUCTION: Do NOT repeat the instructions back to me. Do NOT loop. Stop after the 4 diagrams.
     
     Paper Excerpts:
     {text_content}
-    
-    Output Format STRICTLY:
-    ### Core Breakdown
-    [Your rich bullet points here]
-    
-    ### Flowcharts
-    [Your 5-8 tagged diagrams here]
     """
     
-    response = llm.invoke(prompt)
-    return response.content
+    resp1 = llm.invoke(prompt1).content
+    
+    # Call 2: 4 More Diagrams
+    prompt2 = f"""
+    You are an expert AI Research Scientist. Analyze the same excerpts.
+    
+    Your ONLY task is to generate EXACTLY 4 MORE HIGHLY DETAILED Mermaid.js flowcharts. 
+    Choose different topics from before, such as: Evaluation Metrics, Citation Graph, Research Methodology, or Inference Pipeline.
+    
+    MERMAID INSTRUCTIONS:
+    - KEEP NODE LABELS CLEAN: DO NOT use quotes or special characters inside node text.
+    - ADD COLORS: Use `classDef` to color code nodes.
+    
+    TAGGING INSTRUCTIONS:
+    You MUST wrap each flowchart inside `<diagram title="Your Title Here"> ... </diagram>` tags.
+    
+    CRITICAL INSTRUCTION: Do NOT repeat the instructions back to me. Do NOT loop. Provide the output and stop immediately.
+    
+    Paper Excerpts:
+    {text_content}
+    """
+    
+    resp2 = llm.invoke(prompt2).content
+    
+    # Seamlessly stitch them together!
+    return resp1 + "\n\n" + resp2
