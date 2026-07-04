@@ -22,23 +22,28 @@ def chat_with_memory(user_query: str) -> str:
     vectorstore = load_index()
     
     if vectorstore:
-        # Memory configured specifically for ConversationalRetrievalChain
-        memory = ConversationBufferMemory(
-            chat_memory=chat_history,
-            memory_key="chat_history", 
-            return_messages=True,
-            output_key="answer"
-        )
         retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
+        docs = retriever.invoke(user_query)
+        context = "\n\n".join([doc.page_content for doc in docs])
         
-        chain = ConversationalRetrievalChain.from_llm(
-            llm=llm,
-            retriever=retriever,
-            memory=memory,
-            return_source_documents=False
-        )
-        response = chain.invoke({"question": user_query})
-        return response["answer"]
+        # We manually construct the prompt to avoid the "condense question" double-LLM-call of ConversationalRetrievalChain
+        from langchain_core.prompts import PromptTemplate
+        
+        prompt = f"""You are a helpful AI assistant analyzing a document.
+        
+Context from document:
+{context}
+
+History:
+{chat_history.messages}
+
+User: {user_query}
+AI Assistant:"""
+        
+        response = llm.invoke(prompt)
+        chat_history.add_user_message(user_query)
+        chat_history.add_ai_message(response.content)
+        return response.content
     else:
         # Normal conversation without document context
         from langchain_classic.chains import ConversationChain
