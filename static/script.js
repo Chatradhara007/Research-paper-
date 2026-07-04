@@ -110,6 +110,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Clean up markdown (remove leftover headers)
         markdownOnly = markdownOnly.replace(/### Flowcharts?/gi, "").trim();
+        
+        // STRIP PREAMBLE: Forcibly remove any text the LLM hallucinated before the Core Breakdown
+        const coreIndex = markdownOnly.indexOf("### Core Breakdown");
+        if (coreIndex !== -1) {
+            markdownOnly = markdownOnly.substring(coreIndex);
+        }
 
         // Show canvas
         canvasEmpty.classList.add("hidden");
@@ -137,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
             // Render first diagram by default
             renderFlowchart(diagrams[0].code);
         } else {
-            flowchartContainer.innerHTML = "<p style='color: var(--text-secondary); text-align: center;'><em>No flowcharts could be generated.</em></p>";
+            flowchartContainer.innerHTML = "<p style='color: var(--text-secondary); text-align: center; margin-top: 2rem;'><em>No flowcharts could be generated.</em></p>";
         }
     }
 
@@ -148,11 +154,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 panZoomInstance = null;
             }
             
-            flowchartContainer.removeAttribute('data-processed');
-            // CRITICAL FIX: Use textContent instead of innerHTML so characters like < and > in Mermaid code don't break the DOM!
-            flowchartContainer.textContent = mermaidCode;
+            flowchartContainer.innerHTML = `<div style="color: var(--text-secondary); text-align: center; padding: 2rem;">Rendering...</div>`;
             
-            await mermaid.run({ nodes: [flowchartContainer] });
+            // CRITICAL FIX: Use mermaid.render instead of mermaid.run to safely bypass DOM innerHTML parsing bugs
+            const id = 'mermaid-svg-' + Date.now();
+            const { svg } = await mermaid.render(id, mermaidCode);
+            
+            flowchartContainer.innerHTML = svg;
 
             setTimeout(() => {
                 const svgElement = flowchartContainer.querySelector("svg");
@@ -174,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         } catch (err) {
             console.error("Mermaid syntax error:", err);
-            flowchartContainer.innerHTML = `<p style='color: var(--text-secondary); text-align: center;'><em>Flowchart rendering failed due to syntax error.</em></p><pre style='color: var(--text-secondary); padding: 1rem; overflow: auto; text-align: left;'>${mermaidCode}</pre>`;
+            flowchartContainer.innerHTML = `<p style='color: var(--accent-color); text-align: center; margin-top: 2rem;'><em>Flowchart rendering failed due to syntax error.</em></p><pre style='color: var(--text-secondary); padding: 1rem; overflow: auto; text-align: left; font-size: 12px; white-space: pre-wrap;'>${mermaidCode}</pre>`;
         }
     }
 
