@@ -9,10 +9,10 @@ def get_llm():
     if not api_key or api_key == "your_api_key_here":
         raise ValueError("Please provide a valid GEMINI_API_KEY in your .env file")
     
-    # Using gemini-1.5-flash as it is globally available and has a massive context window for complex instructions
+    # Using gemini-pro (Gemini 1.0 Pro) as it is universally available across all regions and API keys
     return ChatGoogleGenerativeAI(
         google_api_key=api_key,
-        model="gemini-1.5-flash",
+        model="gemini-pro",
         temperature=0.2
     )
 
