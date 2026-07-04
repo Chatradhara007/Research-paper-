@@ -9,10 +9,13 @@ def get_llm():
     if not api_key or api_key == "your_api_key_here":
         raise ValueError("Please provide a valid OPENAI_API_KEY in your .env file")
     
-    # Using gpt-4o-mini as it has a massive context window and flawless instruction following for complex diagrams
+    # Using Bynara Router base URL and Claude Sonnet 4.5
+    base_url = os.getenv("OPENAI_API_BASE", "https://router.bynara.id/v1")
+    
     return ChatOpenAI(
         api_key=api_key,
-        model="gpt-4o-mini",
+        base_url=base_url,
+        model="claude-sonnet-4.5",
         temperature=0.2
     )
 
