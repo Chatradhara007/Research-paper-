@@ -1,18 +1,18 @@
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_openai import ChatOpenAI
 import os
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
 def get_llm():
-    api_key = os.getenv("GEMINI_API_KEY")
+    api_key = os.getenv("OPENAI_API_KEY")
     if not api_key or api_key == "your_api_key_here":
-        raise ValueError("Please provide a valid GEMINI_API_KEY in your .env file")
+        raise ValueError("Please provide a valid OPENAI_API_KEY in your .env file")
     
-    # Using gemini-pro (Gemini 1.0 Pro) as it is universally available across all regions and API keys
-    return ChatGoogleGenerativeAI(
-        google_api_key=api_key,
-        model="gemini-pro",
+    # Using gpt-4o-mini as it has a massive context window and flawless instruction following for complex diagrams
+    return ChatOpenAI(
+        api_key=api_key,
+        model="gpt-4o-mini",
         temperature=0.2
     )
 
