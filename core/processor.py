@@ -48,6 +48,14 @@ def generate_summary_and_flowchart(chunks):
     
     TAGGING INSTRUCTIONS:
     You MUST wrap each flowchart inside `<diagram title="Your Title Here"> ... </diagram>` tags.
+    Example:
+    <diagram title="System Architecture">
+    ```mermaid
+    graph TD
+    classDef step fill:#3b82f6,color:#fff;
+    A[Raw Data]:::step --> B[Processor]:::step
+    ```
+    </diagram>
     
     CRITICAL INSTRUCTION: Do NOT repeat the instructions back to me. Do NOT loop. Stop after the 4 diagrams.
     
@@ -70,6 +78,14 @@ def generate_summary_and_flowchart(chunks):
     
     TAGGING INSTRUCTIONS:
     You MUST wrap each flowchart inside `<diagram title="Your Title Here"> ... </diagram>` tags.
+    Example:
+    <diagram title="Citation Graph">
+    ```mermaid
+    graph LR
+    classDef paper fill:#10b981,color:#fff;
+    A[Paper 1]:::paper --> B[This Work]:::paper
+    ```
+    </diagram>
     
     CRITICAL INSTRUCTION: Do NOT repeat the instructions back to me. Do NOT loop. Provide the output and stop immediately.
     

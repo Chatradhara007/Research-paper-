@@ -82,7 +82,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     async function renderSummary(fullText) {
         // Extract Multiple Mermaid blocks wrapped in <diagram> tags
-        const diagramRegex = /<diagram title="([^"]+)">\s*```mermaid\s*([\s\S]*?)```\s*<\/diagram>/gi;
+        // Made the regex much more robust to handle cases where the LLM forgets the markdown backticks
+        const diagramRegex = /<diagram title="([^"]+)">\s*(?:```(?:mermaid)?\s*)?([\s\S]*?)(?:```\s*)?<\/diagram>/gi;
         let match;
         let diagrams = [];
         let markdownOnly = fullText;
